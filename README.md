@@ -1,2 +1,2 @@
 # solar-bess-grid-connection-study
-Grid connection study for a 20 MW solar and 10 MW battery plant using Python.
+This project assesses whether a 20 MW solar farm and 10 MW battery plant can connect to a 132 kV network without breaching voltage, thermal or fault-level limits. It uses Python and pandapower to run load flow and fault level studies across several operating cases, check grid strength, and test fixes for any problems found. It is a self-directed learning project using a simplified network with assumed data, not real utility data.
