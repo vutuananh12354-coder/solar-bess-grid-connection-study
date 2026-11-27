@@ -26,7 +26,17 @@ SOLAR_MW = 20.0
 BATT_MW = 10.0
 LINE_KM = 12.0
 V_MIN, V_MAX = 0.95, 1.05  # voltage limits (pu) used for the assessment
-LINE_MAX_I_KA = 0.45
+# --- 33 kV feeder conductor: ACSR "Panther" (BS 215-2), APAR datasheet ----------
+LINE_R_OHM_KM = 0.1363     # DC resistance at 20 C (datasheet)
+LINE_X_OHM_KM = 0.37       # typical 33 kV overhead reactance (NOT from the datasheet)
+LINE_C_NF_KM = 10.0        # typical 33 kV overhead capacitance (NOT from the datasheet)
+LINE_MAX_I_KA = 0.377      # datasheet rating at 75 C conductor temp (45 C ambient)
+LINE_ZERO_SEQ_FACTOR = 3.0 # rule of thumb: zero-sequence = ~3x positive-sequence
+
+# --- 132/33 kV transformer ----------------------------------------------------
+TX_MVA = 60.0
+TX_VK_PERCENT = 15.0       # 25% on 100 MVA base (WPD EE SPEC 1/7) -> 25 x 60/100 = 15%
+TX_VKR_PERCENT = 0.4       # copper loss ~0.4% (typical; take from datasheet)
 
 
 def build_network():
@@ -80,7 +90,7 @@ def set_case(net, solar_mw, batt_mw, q_total_mvar):
 
 def run_case(net, label, solar_mw, batt_mw, q_mvar):
     set_case(net, solar_mw, batt_mw, q_mvar)
-    pp.runpp(net, calculate_voltage_angles=True)
+    pp.runpp(net, calculate_voltage_angles=True, numba=False)
     vm = net.res_bus.vm_pu
     row = {
         "case": label,
@@ -152,7 +162,7 @@ def pq_sweep(net):
     v = []
     for q in qs:
         set_case(net, SOLAR_MW, BATT_MW, q)
-        pp.runpp(net, calculate_voltage_angles=True)
+        pp.runpp(net, calculate_voltage_angles=True, numba=False)
         v.append(net.res_bus.vm_pu.iloc[2])
     return qs, np.array(v)
 
